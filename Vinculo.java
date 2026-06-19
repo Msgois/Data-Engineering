@@ -2,7 +2,8 @@ import java.sql.*;
 
 public class Vinculo {
 
-    public void inserirVinculo(String matricula, int curso, Date dataDeEntrada, String status, Date dataDeSaida) {
+    public static void inserirVinculo(String matricula, int curso, Date dataDeEntrada, String status,
+            Date dataDeSaida) {
         String sql = "INSERT INTO universidade.vinculo (mat_estudante,curso, data_entrada, status,data_saida) VALUES (?,?,?,?::universidade.status_estudante,?)";
 
         try (Connection conn = Conexao.getConnection();

@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class Curso {
 
-    public void inserirCurso(String nome, String grau, String turno, String campus, String nivel) {
+    public static void inserirCurso(String nome, String grau, String turno, String campus, String nivel) {
         String sql = "INSERT INTO universidade.curso (nome,grau, turno, campus,nivel) VALUES (?,?::universidade.tipo_grau,?::universidade.tipo_turno,?,?::universidade.tipo_nivel)";
 
         try (Connection conn = Conexao.getConnection();

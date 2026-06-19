@@ -2,7 +2,8 @@ import java.sql.*;
 
 public class Usuario {
 
-    public void inserirUsuario(long cpf, String nome, Date dataNascimento, String email, String telefone, String login,
+    public static void inserirUsuario(long cpf, String nome, Date dataNascimento, String email, String telefone,
+            String login,
             String senha) {
         String sql = "INSERT INTO universidade.usuario (cpf,nome, data_nascimento, email, telefone, login,senha) VALUES (?,?,?,?,?,?,?)";
         /*
