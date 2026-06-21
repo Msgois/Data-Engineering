@@ -1,12 +1,19 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Conexao {
     /* Falta resolver isso do AWS */
-    private static String URL = "ex";
-    private static String USUARIO = "ex";
-    private static String SENHA = "ex";
+    private static final String URL = "jdbc:postgresql://postgres-mybase.c6pdocmdw1pd.us-east-1.rds.amazonaws.com:5432/CrudJava?currentSchema=universidade";
+    private static String USUARIO = "professor";
+    private static String SENHA = "professor";
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USUARIO, SENHA);
+        try {
+            Class.forName("org.postgresql.Driver");
+            return DriverManager.getConnection(URL, USUARIO, SENHA);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver PostgreSQL não encontrado no projeto.", e);
+        }
     }
 }

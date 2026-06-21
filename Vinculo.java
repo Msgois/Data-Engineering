@@ -1,52 +1,27 @@
-import java.sql.*;
-
 public class Vinculo {
+    private int idVinculo;
+    private int idEstudante; // FK para estudante
+    private int idCurso;     // FK para curso
+    private String status;   // Padrão no banco é 'Ativo'
 
-    public static void inserirVinculo(String matricula, int curso, Date dataDeEntrada, String status,
-            Date dataDeSaida) {
-        String sql = "INSERT INTO universidade.vinculo (mat_estudante,curso, data_entrada, status,data_saida) VALUES (?,?,?,?::universidade.status_estudante,?)";
+    public Vinculo() {}
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, matricula);
-            stmt.setInt(2, curso);
-            stmt.setDate(3, dataDeEntrada);
-            stmt.setString(4, status);
-
-            if (dataDeSaida != null) {
-                stmt.setDate(5, dataDeSaida);
-            } else {
-                stmt.setNull(5, Types.DATE);
-            }
-
-            stmt.executeUpdate();
-            System.out.println("Vinculo inserido/Cadastrado com Sucesso!");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao inserir Vinculo: " + e.getMessage());
-        }
+    public Vinculo(int idVinculo, int idEstudante, int idCurso, String status) {
+        this.idVinculo = idVinculo;
+        this.idEstudante = idEstudante;
+        this.idCurso = idCurso;
+        this.status = status;
     }
 
-    public void listarTodosVinculo() {
-        String sql = "SELECT * FROM universidade.vinculo";
+    public int getIdVinculo() { return idVinculo; }
+    public void setIdVinculo(int idVinculo) { this.idVinculo = idVinculo; }
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet resultado = stmt.executeQuery()) {
+    public int getIdEstudante() { return idEstudante; }
+    public void setIdEstudante(int idEstudante) { this.idEstudante = idEstudante; }
 
-            while (resultado.next()) {
-                System.out.println("---------------------------------------------");
-                System.out.println("IDdeVinculo: " + resultado.getInt("idVinculo"));
-                System.out.println("Matricula: " + resultado.getString("mat_estudante"));
-                System.out.println("IDdeCurso: " + resultado.getInt("curso"));
-                System.out.println("DatadeEntrada" + resultado.getDate("data_entrada"));
-                System.out.println("Status: " + resultado.getString("status"));
-                System.out.println("DatadeSaida" + resultado.getDate("data_saida"));
+    public int getIdCurso() { return idCurso; }
+    public void setIdCurso(int idCurso) { this.idCurso = idCurso; }
 
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao Listar Todos os Vinculos:" + e.getMessage());
-        }
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
