@@ -1,55 +1,46 @@
-import java.sql.*;
+import java.util.Date;
 
 public class Usuario {
+    private long cpf;
+    private String nome;
+    private Date dataNascimento;
+    private String email;
+    private String telefone;
+    private String login;
+    private String senha;
 
-    public static void inserirUsuario(long cpf, String nome, Date dataNascimento, String email, String telefone,
-            String login,
-            String senha) {
-        String sql = "INSERT INTO universidade.usuario (cpf,nome, data_nascimento, email, telefone, login,senha) VALUES (?,?,?,?,?,?,?)";
-        /*
-         * Como o email e o telefone são Arrays de VARCHAR, foi necessário criar essa
-         * Formatação para que sejam lidos corretamente
-         */
-        String emailFormatado = "{" + email + "}";
-        String telefoneFormatado = "{" + telefone + "}";
+    // Construtores
+    public Usuario() {}
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setLong(1, cpf);
-            stmt.setString(2, nome);
-            stmt.setDate(3, dataNascimento);
-            stmt.setString(4, emailFormatado);
-            stmt.setString(5, telefoneFormatado);
-            stmt.setString(6, login);
-            stmt.setString(7, senha);
-
-            stmt.executeUpdate();
-            System.out.println("Usuario inserido/Cadastrado com Sucesso!");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao inserir Usuario: " + e.getMessage());
-        }
+    public Usuario(long cpf, String nome, Date dataNascimento, String email, String telefone, String login, String senha) {
+        this.cpf = cpf;
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.email = email;
+        this.telefone = telefone;
+        this.login = login;
+        this.senha = senha;
     }
 
-    public void listarTodosUsuarios() {
-        String sql = "SELECT * FROM universidade.usuario";
+    // Getters e Setters
+    public long getCpf() { return cpf; }
+    public void setCpf(long cpf) { this.cpf = cpf; }
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet resultado = stmt.executeQuery()) {
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-            while (resultado.next()) {
-                System.out.println("---------------------------------------------");
-                System.out.println("CPF: " + resultado.getLong("cpf"));
-                System.out.println("Nome: " + resultado.getString("nome"));
-                System.out.println("DataDeNascimento: " + resultado.getDate("data_nascimento"));
-                System.out.println("Email: " + resultado.getString("email"));
-                System.out.println("Telefone: " + resultado.getString("telefone"));
-                System.out.println("Login: " + resultado.getString("login"));
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao Listar Todos os Usuarios:" + e.getMessage());
-        }
-    }
+    public Date getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(Date dataNascimento) { this.dataNascimento = dataNascimento; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+
+    public String getLogin() { return login; }
+    public void setLogin(String login) { this.login = login; }
+
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
 }

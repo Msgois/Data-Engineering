@@ -1,41 +1,25 @@
-import java.sql.*;
-
 public class Estudante {
-    public static void inserirEstudante(String matricula, long cpf, double MC, int anoDeIngresso) {
-        String sql = "INSERT INTO universidade.estudante (mat_estudante,cpf, MC, ano_ingresso) VALUES (?,?,?,?)";
+    private int idEstudante;
+    private long cpfUsuario; // Chave estrangeira que liga com o Usuario
+    private String matricula;
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+    // Construtor vazio
+    public Estudante() {}
 
-            stmt.setString(1, matricula);
-            stmt.setLong(2, cpf);
-            stmt.setDouble(3, MC);
-            stmt.setInt(4, anoDeIngresso);
-
-            stmt.executeUpdate();
-            System.out.println("Estudante inserido/Cadastrado com Sucesso!");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao inserir Estudante: " + e.getMessage());
-        }
+    // Construtor completo
+    public Estudante(int idEstudante, long cpfUsuario, String matricula) {
+        this.idEstudante = idEstudante;
+        this.cpfUsuario = cpfUsuario;
+        this.matricula = matricula;
     }
 
-    public void listarTodosEstudantes() {
-        String sql = "SELECT * FROM universidade.estudante";
+    // Getters e Setters
+    public int getIdEstudante() { return idEstudante; }
+    public void setIdEstudante(int idEstudante) { this.idEstudante = idEstudante; }
 
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet resultado = stmt.executeQuery()) {
+    public long getCpfUsuario() { return cpfUsuario; }
+    public void setCpfUsuario(long cpfUsuario) { this.cpfUsuario = cpfUsuario; }
 
-            while (resultado.next()) {
-                System.out.println("---------------------------------------------");
-                System.out.println("Matricula: " + resultado.getString("mat_estudante"));
-                System.out.println("Cpf: " + resultado.getLong("cpf"));
-                System.out.println("MC: " + resultado.getDouble("MC"));
-                System.out.println("AnodeIngresso: " + resultado.getInt("ano_ingresso"));
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao Listar Todos os Estudantes:" + e.getMessage());
-        }
-    }
+    public String getMatricula() { return matricula; }
+    public void setMatricula(String matricula) { this.matricula = matricula; }
 }

@@ -62,7 +62,7 @@ public class Organizador {
         String senha = sc.nextLine();
 
         /* Chama o método inserirUsuario passando os dados obtidos como paramêtro */
-        Usuario.inserirUsuario(cpf, nome, dataNascimentoSQL, email, telefone, login, senha);
+        /*Usuario.inserirUsuario(cpf, nome, dataNascimentoSQL, email, telefone, login, senha); */
 
     }
 
@@ -89,7 +89,7 @@ public class Organizador {
         sc.nextLine();
 
         /* Chama o método inserirEstudante passando os dados obtidos como paramêtro */
-        Estudante.inserirEstudante(matricula, cpf, MC, anoDeIngresso);
+        EstudanteDAO.inserirEstudante(matricula, cpf, MC, anoDeIngresso);
 
     }
 
@@ -116,7 +116,7 @@ public class Organizador {
         String nivel = sc.nextLine();
 
         /* Chama o método inserirCurso passando os dados obtidos como paramêtro */
-        Curso.inserirCurso(nome, grau, turno, campus, nivel);
+        CursoDAO.inserirCurso(nome, grau, turno, campus, nivel);
 
     }
 
@@ -190,7 +190,7 @@ public class Organizador {
         Date dataSaidaSQL = Date.valueOf(dataLocal);
 
         /* Chama o método inserirVinculo passando os dados obtidos como paramêtro */
-        Vinculo.inserirVinculo(matricula, idDeCurso, dataEntradaSQL, status, dataSaidaSQL);
+        VinculoDAO.inserirVinculo(matricula, idDeCurso, dataEntradaSQL, status, dataSaidaSQL);
 
     }
 
