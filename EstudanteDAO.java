@@ -4,56 +4,63 @@ import java.util.List;
 
 public class EstudanteDAO {
     // 1. CREATE (Insert)
-    public void salvar(Estudante estudante) {
-        // Não incluímos o id_estudante aqui porque ele é SERIAL no banco
-        String sql = "INSERT INTO universidade.estudante (cpf_usuario, matricula) VALUES (?, ?)";
-        
+    public static void inserirEstudante(Estudante estudante) {
+        String sql = "INSERT INTO universidade.estudante (mat_estudante,cpf, MC, ano_ingresso) VALUES (?,?,?,?)";
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setLong(1, estudante.getCpfUsuario());
-            stmt.setString(2, estudante.getMatricula());
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, estudante.getMatricula());
+            stmt.setLong(2, estudante.getCpf());
+            stmt.setDouble(3, estudante.getMc());
+            stmt.setInt(4, estudante.getAnoIngresso());
+
             stmt.executeUpdate();
-            System.out.println("Estudante cadastrado com sucesso!");
+            System.out.println("Estudante inserido/Cadastrado com Sucesso!");
+
         } catch (SQLException e) {
-            System.err.println("Erro ao salvar estudante: " + e.getMessage());
+            System.err.println("Erro ao inserir Estudante: " + e.getMessage());
         }
     }
 
     // 2. READ (Listar todos)
-    public List<Estudante> listarTodos() {
+    public List<Estudante> listarTodosEstudantes() {
+
         String sql = "SELECT * FROM universidade.estudante";
-        List<Estudante> estudantes = new ArrayList<>();
-        
+        List<Estudante> listaEstudantes = new ArrayList<>();
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                Estudante e = new Estudante();
-                e.setIdEstudante(rs.getInt("id_estudante"));
-                e.setCpfUsuario(rs.getLong("cpf_usuario"));
-                e.setMatricula(rs.getString("matricula"));
-                estudantes.add(e);
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
+                Estudante estudante = new Estudante();
+                estudante.setMatricula(resultado.getString("mat_estudante"));
+                estudante.setCpf(resultado.getLong("cpf"));
+                estudante.setMc(resultado.getDouble("MC"));
+                estudante.setAnoIngresso(resultado.getInt("ano_ingresso"));
+
+                listaEstudantes.add(estudante);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao listar estudantes: " + e.getMessage());
+            System.err.println("Erro ao Listar todos os Estudantes: " + e.getMessage());
         }
-        return estudantes;
+        return listaEstudantes;
     }
 
     // 3. UPDATE
     public void atualizar(Estudante estudante) {
-        String sql = "UPDATE universidade.estudante SET cpf_usuario = ?, matricula = ? WHERE id_estudante = ?";
-        
+        String sql = "UPDATE universidade.estudante SET mat_estudante = ?, cpf = ?, MC = ?, ano_ingresso = ? WHERE id_estudante = ?";
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setLong(1, estudante.getCpfUsuario());
-            stmt.setString(2, estudante.getMatricula());
-            stmt.setInt(3, estudante.getIdEstudante()); // Identifica qual estudante atualizar pelo ID
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, estudante.getCpf());
+            stmt.setDouble(2, estudante.getMc());
+            stmt.setInt(3, estudante.getAnoIngresso());
+            stmt.setString(4, estudante.getMatricula());
+            stmt.setInt(5, estudante.getIdEstudante());
+
             stmt.executeUpdate();
             System.out.println("Dados do estudante atualizados com sucesso!");
         } catch (SQLException e) {
@@ -64,10 +71,10 @@ public class EstudanteDAO {
     // 4. DELETE
     public void deletar(int idEstudante) {
         String sql = "DELETE FROM universidade.estudante WHERE id_estudante = ?";
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, idEstudante);
             stmt.executeUpdate();
             System.out.println("Estudante removido com sucesso!");

@@ -4,38 +4,49 @@ import java.util.List;
 
 public class CursoDAO {
     // 1. CREATE (Insert)
-    public void salvar(Curso curso) {
-        String sql = "INSERT INTO universidade.curso (nome) VALUES (?)";
-        
+
+    public static void inserirCurso(Curso curso) {
+        String sql = "INSERT INTO universidade.curso (nome,grau, turno, campus,nivel) VALUES (?,?::universidade.tipo_grau,?::universidade.tipo_turno,?,?::universidade.tipo_nivel)";
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, curso.getNome());
-            
+            stmt.setString(2, curso.getGrau());
+            stmt.setString(3, curso.getTurno());
+            stmt.setString(4, curso.getCampus());
+            stmt.setString(5, curso.getNivel());
+
             stmt.executeUpdate();
-            System.out.println("Curso criado com sucesso!");
+            System.out.println("Curso inserido/Cadastrado com Sucesso!");
+
         } catch (SQLException e) {
-            System.err.println("Erro ao salvar curso: " + e.getMessage());
+            System.err.println("Erro ao inserir Curso: " + e.getMessage());
         }
     }
 
-    // 2. READ (Listar todos)
-    public List<Curso> listarTodos() {
+    public List<Curso> listarTodosCursos() {
         String sql = "SELECT * FROM universidade.curso";
         List<Curso> cursos = new ArrayList<>();
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                Curso c = new Curso();
-                c.setIdCurso(rs.getInt("id_curso"));
-                c.setNome(rs.getString("nome"));
-                cursos.add(c);
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
+                Curso curso = new Curso();
+
+                curso.setIdCurso(resultado.getInt("idCurso"));
+                curso.setNome(resultado.getString("nome"));
+                curso.setGrau(resultado.getString("grau"));
+                curso.setTurno(resultado.getString("turno"));
+                curso.setCampus(resultado.getString("campus"));
+                curso.setNivel(resultado.getString("nivel"));
+
+                cursos.add(curso);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao listar cursos: " + e.getMessage());
+            System.err.println("Erro ao Listar Todos os cursos: " + e.getMessage());
         }
         return cursos;
     }
@@ -43,17 +54,21 @@ public class CursoDAO {
     // 2b. READ (Buscar por ID específico - Útil para o vínculo)
     public Curso buscarPorId(int idCurso) {
         String sql = "SELECT * FROM universidade.curso WHERE id_curso = ?";
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, idCurso);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Curso c = new Curso();
-                    c.setIdCurso(rs.getInt("id_curso"));
-                    c.setNome(rs.getString("nome"));
-                    return c;
+            try (ResultSet resultado = stmt.executeQuery()) {
+                if (resultado.next()) {
+                    Curso curso = new Curso();
+                    curso.setIdCurso(resultado.getInt("idCurso"));
+                    curso.setNome(resultado.getString("nome"));
+                    curso.setGrau(resultado.getString("grau"));
+                    curso.setTurno(resultado.getString("turno"));
+                    curso.setCampus(resultado.getString("campus"));
+                    curso.setNivel(resultado.getString("nivel"));
+                    return curso;
                 }
             }
         } catch (SQLException e) {
@@ -64,14 +79,18 @@ public class CursoDAO {
 
     // 3. UPDATE (Atualizar o nome do curso)
     public void atualizar(Curso curso) {
-        String sql = "UPDATE universidade.curso SET nome = ? WHERE id_curso = ?";
-        
+        String sql = "UPDATE universidade.curso SET nome = ?, grau = ?::universidade.tipo_grau, turno = ?::universidade.tipo_turno, campus = ?, nivel = ?::universidade.tipo_nivel WHERE id_curso = ?";
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, curso.getNome());
-            stmt.setInt(2, curso.getIdCurso());
-            
+            stmt.setString(2, curso.getGrau());
+            stmt.setString(3, curso.getTurno());
+            stmt.setString(4, curso.getCampus());
+            stmt.setString(5, curso.getNivel());
+            stmt.setInt(6, curso.getIdCurso());
+
             stmt.executeUpdate();
             System.out.println("Curso atualizado com sucesso!");
         } catch (SQLException e) {
@@ -82,12 +101,12 @@ public class CursoDAO {
     // 4. DELETE (Remover curso)
     public void deletar(int idCurso) {
         String sql = "DELETE FROM universidade.curso WHERE id_curso = ?";
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, idCurso);
-            
+
             stmt.executeUpdate();
             System.out.println("Curso removido com sucesso!");
         } catch (SQLException e) {

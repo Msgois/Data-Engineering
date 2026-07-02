@@ -1,27 +1,73 @@
+import java.util.Date;
+
 public class Vinculo {
     private int idVinculo;
-    private int idEstudante; // FK para estudante
-    private int idCurso;     // FK para curso
-    private String status;   // Padrão no banco é 'Ativo'
+    private String matricula; // FK para estudante (ligado à mat_estudante)
+    private int idCurso; // FK para curso
+    private Date dataEntrada;
+    private String status; // Ex: 'Ativo', 'Trancado', etc.
+    private Date dataSaida; // Pode ser nulo se o aluno ainda estiver cursando
 
-    public Vinculo() {}
+    // Construtor vazio
+    public Vinculo() {
+    }
 
-    public Vinculo(int idVinculo, int idEstudante, int idCurso, String status) {
+    // Construtor completo
+    public Vinculo(int idVinculo, String matricula, int idCurso, Date dataEntrada, String status, Date dataSaida) {
         this.idVinculo = idVinculo;
-        this.idEstudante = idEstudante;
+        this.matricula = matricula;
         this.idCurso = idCurso;
+        this.dataEntrada = dataEntrada;
+        this.status = status;
+        this.dataSaida = dataSaida;
+    }
+
+    // Getters e Setters
+    public int getIdVinculo() {
+        return idVinculo;
+    }
+
+    public void setIdVinculo(int idVinculo) {
+        this.idVinculo = idVinculo;
+    }
+
+    public String getMatricula() {
+        return matricula;
+    }
+
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
+    }
+
+    public int getIdCurso() {
+        return idCurso;
+    }
+
+    public void setIdCurso(int idCurso) {
+        this.idCurso = idCurso;
+    }
+
+    public Date getDataEntrada() {
+        return dataEntrada;
+    }
+
+    public void setDataEntrada(Date dataEntrada) {
+        this.dataEntrada = dataEntrada;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public int getIdVinculo() { return idVinculo; }
-    public void setIdVinculo(int idVinculo) { this.idVinculo = idVinculo; }
+    public Date getDataSaida() {
+        return dataSaida;
+    }
 
-    public int getIdEstudante() { return idEstudante; }
-    public void setIdEstudante(int idEstudante) { this.idEstudante = idEstudante; }
-
-    public int getIdCurso() { return idCurso; }
-    public void setIdCurso(int idCurso) { this.idCurso = idCurso; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setDataSaida(Date dataSaida) {
+        this.dataSaida = dataSaida;
+    }
 }

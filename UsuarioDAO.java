@@ -4,49 +4,57 @@ import java.util.List;
 
 public class UsuarioDAO {
     // 1. CREATE (Insert)
-    public void salvar(Usuario usuario) {
-        String sql = "INSERT INTO universidade.usuario (cpf, nome, data_nascimento, email, telefone, login, senha) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+    public static void inserirUsuario(Usuario usuario) {
+        String sql = "INSERT INTO universidade.usuario (cpf,nome, data_nascimento, email, telefone, login,senha) VALUES (?,?,?,?,?,?,?)";
+        /*
+         * Como o email e o telefone são Arrays de VARCHAR, foi necessário criar essa
+         * Formatação para que sejam lidos corretamente
+         */
+        String emailFormatado = "{" + usuario.getEmail() + "}";
+        String telefoneFormatado = "{" + usuario.getTelefone() + "}";
+
         try (Connection conn = Conexao.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setLong(1, usuario.getCpf());
             stmt.setString(2, usuario.getNome());
             stmt.setDate(3, new java.sql.Date(usuario.getDataNascimento().getTime()));
-            stmt.setString(4, usuario.getEmail());
-            stmt.setString(5, usuario.getTelefone());
+            stmt.setString(4, emailFormatado);
+            stmt.setString(5, telefoneFormatado);
             stmt.setString(6, usuario.getLogin());
             stmt.setString(7, usuario.getSenha());
-            
+
             stmt.executeUpdate();
-            System.out.println("Usuário salvo com sucesso!");
+            System.out.println("Usuario inserido/Cadastrado com Sucesso!");
+
         } catch (SQLException e) {
-            System.err.println("Erro ao salvar usuário: " + e.getMessage());
+            System.err.println("Erro ao inserir Usuario: " + e.getMessage());
         }
     }
 
     // 2. READ (Listar todos)
-    public List<Usuario> listarTodos() {
+    public List<Usuario> listarTodosUsuarios() {
         String sql = "SELECT * FROM universidade.usuario";
         List<Usuario> usuarios = new ArrayList<>();
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                Usuario u = new Usuario();
-                u.setCpf(rs.getLong("cpf"));
-                u.setNome(rs.getString("nome"));
-                u.setDataNascimento(rs.getDate("data_nascimento"));
-                u.setEmail(rs.getString("email"));
-                u.setTelefone(rs.getString("telefone"));
-                u.setLogin(rs.getString("login"));
-                u.setSenha(rs.getString("senha"));
-                usuarios.add(u);
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setCpf(resultado.getLong("cpf"));
+                usuario.setNome(resultado.getString("nome"));
+                usuario.setDataNascimento(resultado.getDate("data_nascimento"));
+                usuario.setEmail(resultado.getString("email"));
+                usuario.setTelefone(resultado.getString("telefone"));
+                usuario.setLogin(resultado.getString("login"));
+                usuario.setSenha(resultado.getString("senha"));
+
+                usuarios.add(usuario);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao listar usuários: " + e.getMessage());
+            System.err.println("Erro ao Listar Todos os Usuarios:" + e.getMessage());
         }
         return usuarios;
     }
@@ -54,18 +62,20 @@ public class UsuarioDAO {
     // 3. UPDATE
     public void atualizar(Usuario usuario) {
         String sql = "UPDATE universidade.usuario SET nome = ?, data_nascimento = ?, email = ?, telefone = ?, login = ?, senha = ? WHERE cpf = ?";
-        
+        String emailFormatado = "{" + usuario.getEmail() + "}";
+        String telefoneFormatado = "{" + usuario.getTelefone() + "}";
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, usuario.getNome());
             stmt.setDate(2, new java.sql.Date(usuario.getDataNascimento().getTime()));
-            stmt.setString(3, usuario.getEmail());
-            stmt.setString(4, usuario.getTelefone());
+            stmt.setString(3, emailFormatado);
+            stmt.setString(4, telefoneFormatado);
             stmt.setString(5, usuario.getLogin());
             stmt.setString(6, usuario.getSenha());
             stmt.setLong(7, usuario.getCpf());
-            
+
             stmt.executeUpdate();
             System.out.println("Usuário atualizado com sucesso!");
         } catch (SQLException e) {
@@ -76,10 +86,10 @@ public class UsuarioDAO {
     // 4. DELETE
     public void deletar(long cpf) {
         String sql = "DELETE FROM universidade.usuario WHERE cpf = ?";
-        
+
         try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setLong(1, cpf);
             stmt.executeUpdate();
             System.out.println("Usuário removido com sucesso!");
