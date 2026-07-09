@@ -36,7 +36,7 @@ public class CursoDAO {
             while (resultado.next()) {
                 Curso curso = new Curso();
 
-                curso.setIdCurso(resultado.getInt("idCurso"));
+                curso.setIdCurso(resultado.getInt("id_curso"));
                 curso.setNome(resultado.getString("nome"));
                 curso.setGrau(resultado.getString("grau"));
                 curso.setTurno(resultado.getString("turno"));

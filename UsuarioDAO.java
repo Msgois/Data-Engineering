@@ -5,7 +5,7 @@ import java.util.List;
 public class UsuarioDAO {
     // 1. CREATE (Insert)
     public static void inserirUsuario(Usuario usuario) {
-        String sql = "INSERT INTO universidade.usuario (cpf,nome, data_nascimento, email, telefone, login,senha) VALUES (?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO universidade.usuario (cpf, nome, data_nascimento, email, telefone, login, senha) VALUES (?, ?, ?, ?::VARCHAR[], ?::VARCHAR[], ?, ?)";
         /*
          * Como o email e o telefone são Arrays de VARCHAR, foi necessário criar essa
          * Formatação para que sejam lidos corretamente

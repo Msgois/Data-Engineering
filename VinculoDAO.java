@@ -5,7 +5,7 @@ import java.util.List;
 public class VinculoDAO {
     // 1. CREATE
     public void inserirVinculo(Vinculo vinculo) {
-        String sql = "INSERT INTO universidade.vinculo (mat_estudante,curso, data_entrada, status,data_saida) VALUES (?,?,?,?::universidade.status_estudante,?)";
+        String sql = "INSERT INTO universidade.vinculo (mat_estudante, curso, data_entrada, status, data_saida) VALUES (?, ?, ?, ?::universidade.status_estudante, ?)";
         try (Connection conn = Conexao.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 

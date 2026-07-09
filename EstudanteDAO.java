@@ -55,10 +55,10 @@ public class EstudanteDAO {
         try (Connection conn = Conexao.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setLong(1, estudante.getCpf());
-            stmt.setDouble(2, estudante.getMc());
-            stmt.setInt(3, estudante.getAnoIngresso());
-            stmt.setString(4, estudante.getMatricula());
+            stmt.setString(1, estudante.getMatricula());
+            stmt.setLong(2, estudante.getCpf());
+            stmt.setDouble(3, estudante.getMc());
+            stmt.setInt(4, estudante.getAnoIngresso());
             stmt.setInt(5, estudante.getIdEstudante());
 
             stmt.executeUpdate();
