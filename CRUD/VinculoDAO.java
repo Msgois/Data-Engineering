@@ -1,10 +1,12 @@
+package CRUD;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VinculoDAO {
     // 1. CREATE
-    public void inserirVinculo(Vinculo vinculo) {
+    public static void inserirVinculo(Vinculo vinculo) {
         String sql = "INSERT INTO universidade.vinculo (mat_estudante, curso, data_entrada, status, data_saida) VALUES (?, ?, ?, ?::universidade.status_estudante, ?)";
         try (Connection conn = Conexao.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -37,7 +39,7 @@ public class VinculoDAO {
 
             while (resultado.next()) {
                 Vinculo vinculo = new Vinculo();
-                vinculo.setIdVinculo(resultado.getInt("idVinculo"));
+                vinculo.setIdVinculo(resultado.getInt("id_vinculo"));
                 vinculo.setMatricula(resultado.getString("mat_estudante"));
                 vinculo.setIdCurso(resultado.getInt("curso"));
                 vinculo.setDataEntrada(resultado.getDate("data_entrada"));

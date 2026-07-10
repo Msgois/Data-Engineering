@@ -1,3 +1,5 @@
+package CRUD;
+
 public class Estudante {
     private int idEstudante;
     private long cpf;

@@ -1,3 +1,5 @@
+package CRUD;
+
 import java.util.Scanner;
 
 public class Main {
@@ -59,16 +61,16 @@ public class Main {
 
                         switch (escolhaDousuario2) {
                             case 1:
-                                Organizador.o_rusuario();
+                                Organizador.o_rusuario(sc);
                                 break;
                             case 2:
-                                Organizador.o_restudante();
+                                Organizador.o_restudante(sc);
                                 break;
                             case 3:
-                                Organizador.o_rcurso();
+                                Organizador.o_rcurso(sc);
                                 break;
                             case 4:
-                                Organizador.o_rvinculo();
+                                Organizador.o_rvinculo(sc);
                                 break;
                             case 5:
                                 System.out.println("Voltando\n");
@@ -92,16 +94,16 @@ public class Main {
 
                         switch (escolhaDousuario3) {
                             case 1:
-                                Organizador.o_uusuario();
+                                Organizador.o_uusuario(sc);
                                 break;
                             case 2:
-                                Organizador.o_uestudante();
+                                Organizador.o_uestudante(sc);
                                 break;
                             case 3:
-                                Organizador.o_ucurso();
+                                Organizador.o_ucurso(sc);
                                 break;
                             case 4:
-                                Organizador.o_uvinculo();
+                                Organizador.o_uvinculo(sc);
                                 break;
                             case 5:
                                 System.out.println("Voltando\n");
@@ -126,16 +128,16 @@ public class Main {
 
                         switch (escolhaDousuario4) {
                             case 1:
-                                Organizador.o_dusuario();
+                                Organizador.o_dusuario(sc);
                                 break;
                             case 2:
-                                Organizador.o_destudante();
+                                Organizador.o_destudante(sc);
                                 break;
                             case 3:
-                                Organizador.o_dcurso();
+                                Organizador.o_dcurso(sc);
                                 break;
                             case 4:
-                                Organizador.o_dvinculo();
+                                Organizador.o_dvinculo(sc);
                                 break;
                             case 5:
                                 System.out.println("Voltando\n");

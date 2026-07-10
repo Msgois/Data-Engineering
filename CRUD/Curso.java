@@ -1,3 +1,5 @@
+package CRUD;
+
 public class Curso {
     private int idCurso;
     private String nome;

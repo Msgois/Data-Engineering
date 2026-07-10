@@ -1,3 +1,5 @@
+package CRUD;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ public class CursoDAO {
         }
     }
 
+    // READ
     public List<Curso> listarTodosCursos() {
         String sql = "SELECT * FROM universidade.curso";
         List<Curso> cursos = new ArrayList<>();
@@ -49,32 +52,6 @@ public class CursoDAO {
             System.err.println("Erro ao Listar Todos os cursos: " + e.getMessage());
         }
         return cursos;
-    }
-
-    // 2b. READ (Buscar por ID específico - Útil para o vínculo)
-    public Curso buscarPorId(int idCurso) {
-        String sql = "SELECT * FROM universidade.curso WHERE id_curso = ?";
-
-        try (Connection conn = Conexao.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idCurso);
-            try (ResultSet resultado = stmt.executeQuery()) {
-                if (resultado.next()) {
-                    Curso curso = new Curso();
-                    curso.setIdCurso(resultado.getInt("idCurso"));
-                    curso.setNome(resultado.getString("nome"));
-                    curso.setGrau(resultado.getString("grau"));
-                    curso.setTurno(resultado.getString("turno"));
-                    curso.setCampus(resultado.getString("campus"));
-                    curso.setNivel(resultado.getString("nivel"));
-                    return curso;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao buscar curso por ID: " + e.getMessage());
-        }
-        return null;
     }
 
     // 3. UPDATE (Atualizar o nome do curso)
