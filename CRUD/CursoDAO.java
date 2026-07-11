@@ -10,7 +10,7 @@ public class CursoDAO {
     public static void inserirCurso(Curso curso) {
         String sql = "INSERT INTO universidade.curso (nome,grau, turno, campus,nivel) VALUES (?,?::universidade.tipo_grau,?::universidade.tipo_turno,?,?::universidade.tipo_nivel)";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, curso.getNome());
@@ -32,7 +32,7 @@ public class CursoDAO {
         String sql = "SELECT * FROM universidade.curso";
         List<Curso> cursos = new ArrayList<>();
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet resultado = stmt.executeQuery()) {
 
@@ -58,7 +58,7 @@ public class CursoDAO {
     public void atualizar(Curso curso) {
         String sql = "UPDATE universidade.curso SET nome = ?, grau = ?::universidade.tipo_grau, turno = ?::universidade.tipo_turno, campus = ?, nivel = ?::universidade.tipo_nivel WHERE id_curso = ?";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, curso.getNome());
@@ -79,7 +79,7 @@ public class CursoDAO {
     public void deletar(int idCurso) {
         String sql = "DELETE FROM universidade.curso WHERE id_curso = ?";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, idCurso);

@@ -15,7 +15,7 @@ public class UsuarioDAO {
         String emailFormatado = "{" + usuario.getEmail() + "}";
         String telefoneFormatado = "{" + usuario.getTelefone() + "}";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, usuario.getCpf());
@@ -39,7 +39,7 @@ public class UsuarioDAO {
         String sql = "SELECT * FROM universidade.usuario";
         List<Usuario> usuarios = new ArrayList<>();
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet resultado = stmt.executeQuery()) {
 
@@ -67,7 +67,7 @@ public class UsuarioDAO {
         String emailFormatado = "{" + usuario.getEmail() + "}";
         String telefoneFormatado = "{" + usuario.getTelefone() + "}";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, usuario.getNome());
@@ -89,7 +89,7 @@ public class UsuarioDAO {
     public void deletar(long cpf) {
         String sql = "DELETE FROM universidade.usuario WHERE cpf = ?";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, cpf);

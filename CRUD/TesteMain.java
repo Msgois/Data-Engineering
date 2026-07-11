@@ -81,5 +81,6 @@ public class TesteMain {
         }
 
         System.out.println("\n=== FIM DO TESTE ===");
+        Conexao.fecharConexao();
     }
 }

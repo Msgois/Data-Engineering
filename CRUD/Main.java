@@ -159,6 +159,7 @@ public class Main {
                      */
                     controlador = false;
                     /* Como o sistema irá finalizar, fechamento do scanner */
+                    Conexao.fecharConexao();
                     sc.close();
                     break;
                 default:

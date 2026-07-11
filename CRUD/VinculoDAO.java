@@ -8,7 +8,7 @@ public class VinculoDAO {
     // 1. CREATE
     public static void inserirVinculo(Vinculo vinculo) {
         String sql = "INSERT INTO universidade.vinculo (mat_estudante, curso, data_entrada, status, data_saida) VALUES (?, ?, ?, ?::universidade.status_estudante, ?)";
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, vinculo.getMatricula());
@@ -33,7 +33,7 @@ public class VinculoDAO {
         String sql = "SELECT * FROM universidade.vinculo";
         List<Vinculo> vinculos = new ArrayList<>();
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet resultado = stmt.executeQuery()) {
 
@@ -58,7 +58,7 @@ public class VinculoDAO {
     public void atualizarStatus(int idVinculo, String novoStatus) {
         String sql = "UPDATE universidade.vinculo SET status = ?::universidade.status_estudante WHERE id_vinculo = ?";
 
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, novoStatus);
@@ -74,7 +74,7 @@ public class VinculoDAO {
     // 4. DELETE
     public void deletar(int idVinculo) {
         String sql = "DELETE FROM universidade.vinculo WHERE id_vinculo = ?";
-        try (Connection conn = Conexao.getConnection();
+        try (Connection conn = Conexao.getPostgresConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, idVinculo);

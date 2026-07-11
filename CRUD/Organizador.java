@@ -2,25 +2,35 @@ package CRUD;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.sql.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import org.bson.Document;
 
 public class Organizador {
-    /*
-     * Aqui inicia a organização do C(Create)
-     * 
-     * 
-     * 
-     */
+    private static final DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
+    private static Date lerData(Scanner sc) {
+        LocalDate dataLocal = null;
+        while (dataLocal == null) {
+            String entrada = sc.nextLine();
+            try {
+                dataLocal = LocalDate.parse(entrada, formatador);
+            } catch (DateTimeException e) {
+                System.out.println("Erro ao inserir data! Tente Novamente! " + e.getMessage());
+            }
+        }
+        return Date.valueOf(dataLocal);
+    }
+    
+    /* Aqui inicia a organização do C(Create) */
 
-    /*
-     * O método o_cusuario tem como intuito conseguir os dados necessários para a
-     * inserção de um novo usuário ao banco de dados,
-     * por meio de perguntas ao usuário.
+    /* O método o_cusuario tem como intuito conseguir os dados necessários para 
+     * a inserção de um novo usuário ao banco de dados, 
+     * por meio de perguntas ao usuário. 
      */
     public static void o_cusuario(Scanner sc) {
-
         System.out.println("Digite o cpf do novo Usuario:\n");
         long cpf = sc.nextLong();
         sc.nextLine();
@@ -29,28 +39,7 @@ public class Organizador {
         String nome = sc.nextLine();
 
         System.out.println("Digite a data de nascimento do novo Usuario(FORMATO: DD/MM/AAAA):\n");
-
-        /* Lógica para a inserção de datas */
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dataLocal = null;
-
-        /* Vai prender o usuário até que ele digite a data corretamente */
-        while (dataLocal == null) {
-            String dataNascimento = sc.nextLine();
-            try {
-
-                /* Passando a data para o formato aceitado pelo SQL */
-                dataLocal = LocalDate.parse(dataNascimento, formatador);
-            } catch (DateTimeException e) {
-                System.out.println("Erro ao inserir data! Tente Novamente!" + e.getMessage());
-            }
-        }
-
-        /*
-         * Transformação de LocalDate para Date, para que seja aceito como paramêtro
-         * pelo método de inserção
-         */
-        Date dataNascimentoSQL = Date.valueOf(dataLocal);
+        Date dataNascimentoSQL = lerData(sc);
 
         System.out.println("Digite o email do novo Usuario:\n");
         String email = sc.nextLine();
@@ -64,11 +53,13 @@ public class Organizador {
         System.out.println("Digite o senha do novo Usuario:\n");
         String senha = sc.nextLine();
 
-        /* Instanciando o objeto Usuario para passar ao DAO */
         Usuario u = new Usuario(cpf, nome, dataNascimentoSQL, email, telefone, login, senha);
 
-        /* Chama o método inserirUsuario passando os dados obtidos como paramêtro */
+        // 1. Grava no Relacional
         UsuarioDAO.inserirUsuario(u);
+
+        // 2. Grava no NoSQL (Inicia o documento apenas com dados de usuário, sem estudante/vínculos ainda)
+        UsuarioNoSQLDAO.inserirUsuarioNoSQL(u, null, null);
     }
 
     /*
@@ -77,7 +68,6 @@ public class Organizador {
      * por meio de perguntas ao usuário.
      */
     public static void o_cestudante(Scanner sc) {
-
         System.out.println("Digite a matricula do novo Estudante:\n");
         String matricula = sc.nextLine();
 
@@ -92,11 +82,30 @@ public class Organizador {
         System.out.println("Digite o ano de ingresso do novo Estudante:\n");
         int anoDeIngresso = sc.nextInt();
         sc.nextLine();
-        /* Instanciando o objeto Estudante para passar ao DAO */
+
         Estudante e = new Estudante(0, cpf, matricula, MC, anoDeIngresso);
 
-        /* Chama o método inserirEstudante passando os dados obtidos como paramêtro */
+        // 1. Grava no Relacional
         EstudanteDAO.inserirEstudante(e);
+
+        // 2. NoSQL: Como o Usuário já existe, vamos "injetar" o perfil do estudante dentro dele
+        try {
+            com.mongodb.client.MongoCollection<Document> colecao = com.mongodb.client.MongoDatabase.class
+                    .cast(Conexao.getMongoDatabase()).getCollection("usuarios");
+            
+            Document docEstudante = new Document("mat_estudante", e.getMatricula())
+                    .append("MC", e.getMc())
+                    .append("ano_ingresso", e.getAnoIngresso())
+                    .append("vinculos", new ArrayList<>()); // Inicializa a lista de vínculos vazia
+
+            colecao.updateOne(
+                com.mongodb.client.model.Filters.eq("cpf", cpf),
+                com.mongodb.client.model.Updates.set("perfil_estudante", docEstudante)
+            );
+            System.out.println("Perfil de estudante embutido com sucesso no MongoDB!");
+        } catch (Exception ex) {
+            System.err.println("Erro ao espelhar estudante no MongoDB: " + ex.getMessage());
+        }
     }
 
     /*
@@ -105,6 +114,9 @@ public class Organizador {
      * por meio de perguntas ao usuário.
      */
     public static void o_ccurso(Scanner sc) {
+        System.out.println("Digite o ID (Número) para este novo Curso (Verifique o próximo número na sequência do Postgres):\n");
+        int idCurso = sc.nextInt();
+        sc.nextLine();
 
         System.out.println("Digite o nome do novo Curso:\n");
         String nome = sc.nextLine();
@@ -121,12 +133,14 @@ public class Organizador {
         System.out.println("Digite o nivel do novo Curso:\n");
         String nivel = sc.nextLine();
 
-        /* Instanciando o objeto Curso para passar ao DAO */
-        Curso c = new Curso(0, nome, grau, turno, campus, nivel);
+        // AGORA PASSAMOS O ID DIGITADO EM VEZ DE 0:
+        Curso c = new Curso(idCurso, nome, grau, turno, campus, nivel);
 
-        /* Chama o método inserirCurso passando os dados obtidos como paramêtro */
+        // 1. Grava no Relacional
         CursoDAO.inserirCurso(c);
 
+        // 2. Grava no NoSQL (Coleção própria de cursos)
+        CursoNoSQLDAO.inserirCursoNoSQL(c);
     }
 
     /*
@@ -135,75 +149,46 @@ public class Organizador {
      * por meio de perguntas ao usuário.
      */
     public static void o_cvinculo(Scanner sc) {
-
         System.out.println("Digite a matricula do novo Vinculo:\n");
         String matricula = sc.nextLine();
 
-        System.out.println("Digite o idDeCurso do novo Vinculo:\n");
+        System.out.println("Digite o ID do Curso do novo Vinculo:\n");
         int idDeCurso = sc.nextInt();
         sc.nextLine();
 
         System.out.println("Digite a data de entrada do novo Vinculo:\n");
+        Date dataEntradaSQL = lerData(sc);
 
-        /* Lógica para a inserção de datas */
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dataLocal = null;
-
-        /* Vai prender o usuário até que ele digite a data corretamente */
-        while (dataLocal == null) {
-            String dataEntrada = sc.nextLine();
-            try {
-
-                /* Passando a data para o formato aceitado pelo SQL */
-                dataLocal = LocalDate.parse(dataEntrada, formatador);
-            } catch (DateTimeException e) {
-                System.out.println("Erro ao inserir data! Tente Novamente!" + e.getMessage());
-            }
-        }
-
-        /*
-         * Transformação de LocalDate para Date, para que seja aceito como paramêtro
-         * pelo método de inserção
-         */
-        Date dataEntradaSQL = Date.valueOf(dataLocal);
-
-        System.out.println(
-                "Digite o status do novo Vinculo:(Ativo, Trancado, Formado ou Cancelado (ESCREVA EXATAMENTE DESSA FORMA))\n");
+        System.out.println("Digite o status do novo Vinculo:(Ativo, Trancado, Formado ou Cancelado)\n");
         String status = sc.nextLine();
 
         System.out.println("Digite a data de saida do novo Vinculo:\n");
+        Date dataSaidaSQL = lerData(sc);
 
-        /* Lógica para a inserção de datas */
-
-        /*
-         * Não é necessário criar novamente a variável dataLocal, somente passar para
-         * ela o valor null novamente
-         */
-        dataLocal = null;
-
-        /* Vai prender o usuário até que ele digite a data corretamente */
-        while (dataLocal == null) {
-            String dataSaida = sc.nextLine();
-            try {
-
-                /* Passando a data para o formato aceitado pelo SQL */
-                dataLocal = LocalDate.parse(dataSaida, formatador);
-            } catch (DateTimeException e) {
-                System.out.println("Erro ao inserir data! Tente Novamente!" + e.getMessage());
-            }
-        }
-
-        /*
-         * Transformação de LocalDate para Date, para que seja aceito como paramêtro
-         * pelo método de inserção
-         */
-        Date dataSaidaSQL = Date.valueOf(dataLocal);
-
-        /* Instanciando o objeto Vinculo para passar ao DAO */
         Vinculo v = new Vinculo(0, matricula, idDeCurso, dataEntradaSQL, status, dataSaidaSQL);
-        /* Chama o método inserirVinculo passando os dados obtidos como paramêtro */
+
+        // 1. Grava no Relacional
         VinculoDAO.inserirVinculo(v);
 
+        // 2. NoSQL: Localiza o usuário que possui essa matrícula e adiciona o vínculo ao array dele
+        try {
+            com.mongodb.client.MongoCollection<Document> colecao = com.mongodb.client.MongoDatabase.class
+                    .cast(Conexao.getMongoDatabase()).getCollection("usuarios");
+
+            Document docVinculo = new Document("id_curso", v.getIdCurso())
+                    .append("data_entrada", v.getDataEntrada().toString())
+                    .append("status", v.getStatus())
+                    .append("data_saida", v.getDataSaida().toString());
+
+            // Adiciona ($push) o vínculo dentro do array 'vinculos' que está em 'perfil_estudante'
+            colecao.updateOne(
+                com.mongodb.client.model.Filters.eq("perfil_estudante.mat_estudante", matricula),
+                com.mongodb.client.model.Updates.push("perfil_estudante.vinculos", docVinculo)
+            );
+            System.out.println("Vínculo aninhado com sucesso no MongoDB!");
+        } catch (Exception ex) {
+            System.err.println("Erro ao espelhar vínculo no MongoDB: " + ex.getMessage());
+        }
     }
 
     /*
@@ -216,45 +201,51 @@ public class Organizador {
      * Aqui inicia a organização do R(Read)
      */
     public static void o_rusuario(Scanner sc) {
-        System.out.println("--- Lista de Usuários ---");
+        System.out.println("--- Lista de Usuários (Postgres) ---");
         UsuarioDAO dao = new UsuarioDAO();
         List<Usuario> usuarios = dao.listarTodosUsuarios();
         for (Usuario u : usuarios) {
             System.out.println("CPF: " + u.getCpf() + " | Nome: " + u.getNome() + " | Email: " + u.getEmail());
         }
-        System.out.println("-------------------------");
+        System.out.println("------------------------------------");
+        
+        // Exibe o espelho do MongoDB logo abaixo para fins de comparação acadêmica
+        System.out.println("\n--- Espelho correspondente no MongoDB (JSON) ---");
+        List<Document> mongoDocs = UsuarioNoSQLDAO.listarTodosUsuariosNoSQL();
+        for (Document doc : mongoDocs) {
+            System.out.println(doc.toJson());
+        }
+        System.out.println("------------------------------------------------");
     }
 
     public static void o_restudante(Scanner sc) {
-        System.out.println("--- Lista de Estudantes ---");
+        System.out.println("--- Lista de Estudantes (Postgres) ---");
         EstudanteDAO dao = new EstudanteDAO();
         List<Estudante> estudantes = dao.listarTodosEstudantes();
         for (Estudante e : estudantes) {
-            System.out.println(
-                    "Matrícula: " + e.getMatricula() + " | CPF: " + e.getCpf() + " | Ingresso: " + e.getAnoIngresso());
+            System.out.println("Matrícula: " + e.getMatricula() + " | CPF: " + e.getCpf() + " | Ingresso: " + e.getAnoIngresso());
         }
-        System.out.println("---------------------------");
+        System.out.println("--------------------------------------");
     }
 
     public static void o_rcurso(Scanner sc) {
-        System.out.println("--- Lista de Cursos ---");
+        System.out.println("--- Lista de Cursos (Postgres) ---");
         CursoDAO dao = new CursoDAO();
         List<Curso> cursos = dao.listarTodosCursos();
         for (Curso c : cursos) {
             System.out.println("ID: " + c.getIdCurso() + " | Nome: " + c.getNome() + " | Campus: " + c.getCampus());
         }
-        System.out.println("-----------------------");
+        System.out.println("----------------------------------");
     }
 
     public static void o_rvinculo(Scanner sc) {
-        System.out.println("--- Lista de Vínculos ---");
+        System.out.println("--- Lista de Vínculos (Postgres) ---");
         VinculoDAO dao = new VinculoDAO();
         List<Vinculo> vinculos = dao.listarTodosVinculo();
         for (Vinculo v : vinculos) {
-            System.out.println(
-                    "ID: " + v.getIdVinculo() + " | Estudante: " + v.getMatricula() + " | Status: " + v.getStatus());
+            System.out.println("ID: " + v.getIdVinculo() + " | Estudante: " + v.getMatricula() + " | Status: " + v.getStatus());
         }
-        System.out.println("-------------------------");
+        System.out.println("------------------------------------");
     }
 
     /*
@@ -275,16 +266,7 @@ public class Organizador {
         String nome = sc.nextLine();
 
         System.out.println("Digite a nova data de nascimento (FORMATO: DD/MM/AAAA):\n");
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate dataLocal = null;
-        while (dataLocal == null) {
-            try {
-                dataLocal = LocalDate.parse(sc.nextLine(), formatador);
-            } catch (DateTimeException e) {
-                System.out.println("Erro ao inserir data! Tente Novamente!");
-            }
-        }
-        Date dataNascimentoSQL = Date.valueOf(dataLocal);
+        Date dataNascimentoSQL = lerData(sc);
 
         System.out.println("Digite o novo email:\n");
         String email = sc.nextLine();
@@ -299,8 +281,11 @@ public class Organizador {
         String senha = sc.nextLine();
 
         Usuario u = new Usuario(cpf, nome, dataNascimentoSQL, email, telefone, login, senha);
-        UsuarioDAO dao = new UsuarioDAO();
-        dao.atualizar(u);
+        
+        // Atualiza Postgres
+        new UsuarioDAO().atualizar(u);
+        // Atualiza MongoDB
+        UsuarioNoSQLDAO.atualizarNoSQL(u);
     }
 
     public static void o_uestudante(Scanner sc) {
@@ -322,8 +307,25 @@ public class Organizador {
         sc.nextLine();
 
         Estudante e = new Estudante(idEstudante, cpf, matricula, MC, anoDeIngresso);
-        EstudanteDAO dao = new EstudanteDAO();
-        dao.atualizar(e);
+        
+        // Atualiza Postgres
+        new EstudanteDAO().atualizar(e);
+
+        // Atualiza MongoDB (perfil_estudante embutido)
+        try {
+            com.mongodb.client.MongoCollection<Document> colecao = com.mongodb.client.MongoDatabase.class
+                    .cast(Conexao.getMongoDatabase()).getCollection("usuarios");
+            colecao.updateOne(
+                com.mongodb.client.model.Filters.eq("cpf", cpf),
+                com.mongodb.client.model.Updates.combine(
+                    com.mongodb.client.model.Updates.set("perfil_estudante.mat_estudante", matricula),
+                    com.mongodb.client.model.Updates.set("perfil_estudante.MC", MC),
+                    com.mongodb.client.model.Updates.set("perfil_estudante.ano_ingresso", anoDeIngresso)
+                )
+            );
+        } catch (Exception ex) {
+            System.err.println("Erro ao atualizar estudante no Mongo: " + ex.getMessage());
+        }
     }
 
     public static void o_ucurso(Scanner sc) {
@@ -347,8 +349,11 @@ public class Organizador {
         String nivel = sc.nextLine();
 
         Curso c = new Curso(idCurso, nome, grau, turno, campus, nivel);
-        CursoDAO dao = new CursoDAO();
-        dao.atualizar(c);
+        
+        // Atualiza Postgres
+        new CursoDAO().atualizar(c);
+        // Atualiza MongoDB
+        CursoNoSQLDAO.atualizarCursoNoSQL(c);
     }
 
     public static void o_uvinculo(Scanner sc) {
@@ -359,8 +364,17 @@ public class Organizador {
         System.out.println("Digite o novo Status (ex: Ativo, Trancado, Concluído):\n");
         String status = sc.nextLine();
 
-        VinculoDAO dao = new VinculoDAO();
-        dao.atualizarStatus(idVinculo, status);
+        // No relacional você usa o ID sequencial do vínculo
+        new VinculoDAO().atualizarStatus(idVinculo, status);
+
+        // No MongoDB, como o menu original não pede CPF/Curso aqui, buscamos o registro para atualizar via matriz posicional
+        System.out.println("Digite o CPF do usuário dono deste vínculo (para sincronizar com o MongoDB):\n");
+        long cpf = sc.nextLong();
+        System.out.println("Digite o ID do curso deste vínculo:\n");
+        int idCurso = sc.nextInt();
+        sc.nextLine();
+
+        UsuarioNoSQLDAO.atualizarStatusVinculoNoSQL(cpf, idCurso, status);
     }
 
     /*
@@ -378,8 +392,10 @@ public class Organizador {
         long cpf = sc.nextLong();
         sc.nextLine();
 
-        UsuarioDAO dao = new UsuarioDAO();
-        dao.deletar(cpf);
+        // Remove Postgres
+        new UsuarioDAO().deletar(cpf);
+        // Remove MongoDB
+        UsuarioNoSQLDAO.deletarNoSQL(cpf);
     }
 
     public static void o_destudante(Scanner sc) {
@@ -387,8 +403,24 @@ public class Organizador {
         int id = sc.nextInt();
         sc.nextLine();
 
-        EstudanteDAO dao = new EstudanteDAO();
-        dao.deletar(id);
+        System.out.println("Digite o CPF correspondente para o MongoDB:\n");
+        long cpf = sc.nextLong();
+        sc.nextLine();
+
+        // Remove Postgres
+        new EstudanteDAO().deletar(id);
+
+        // No MongoDB, removemos apenas o campo 'perfil_estudante' mantendo o usuário salvo
+        try {
+            com.mongodb.client.MongoCollection<Document> colecao = com.mongodb.client.MongoDatabase.class
+                    .cast(Conexao.getMongoDatabase()).getCollection("usuarios");
+            colecao.updateOne(
+                com.mongodb.client.model.Filters.eq("cpf", cpf),
+                com.mongodb.client.model.Updates.unset("perfil_estudante")
+            );
+        } catch (Exception ex) {
+            System.err.println("Erro ao remover perfil estudante do Mongo: " + ex.getMessage());
+        }
     }
 
     public static void o_dcurso(Scanner sc) {
@@ -396,8 +428,10 @@ public class Organizador {
         int id = sc.nextInt();
         sc.nextLine();
 
-        CursoDAO dao = new CursoDAO();
-        dao.deletar(id);
+        // Remove Postgres
+        new CursoDAO().deletar(id);
+        // Remove MongoDB
+        CursoNoSQLDAO.deletarCursoNoSQL(id);
     }
 
     public static void o_dvinculo(Scanner sc) {
@@ -405,8 +439,10 @@ public class Organizador {
         int id = sc.nextInt();
         sc.nextLine();
 
-        VinculoDAO dao = new VinculoDAO();
-        dao.deletar(id);
+        // Remove Postgres
+        new VinculoDAO().deletar(id);
+        
+        System.out.println("Remoção concluída no Postgres. Devido à estrutura embutida do NoSQL, remoções de vínculos específicos devem ser feitas via atualização de perfil.");
     }
     /*
      * Aqui termina a organização do D(Delete)
