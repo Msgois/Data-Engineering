@@ -114,10 +114,6 @@ public class Organizador {
      * por meio de perguntas ao usuário.
      */
     public static void o_ccurso(Scanner sc) {
-        System.out.println("Digite o ID (Número) para este novo Curso (Verifique o próximo número na sequência do Postgres):\n");
-        int idCurso = sc.nextInt();
-        sc.nextLine();
-
         System.out.println("Digite o nome do novo Curso:\n");
         String nome = sc.nextLine();
 
@@ -133,8 +129,7 @@ public class Organizador {
         System.out.println("Digite o nivel do novo Curso:\n");
         String nivel = sc.nextLine();
 
-        // AGORA PASSAMOS O ID DIGITADO EM VEZ DE 0:
-        Curso c = new Curso(idCurso, nome, grau, turno, campus, nivel);
+        Curso c = new Curso(0, nome, grau, turno, campus, nivel);
 
         // 1. Grava no Relacional
         CursoDAO.inserirCurso(c);
@@ -226,6 +221,15 @@ public class Organizador {
             System.out.println("Matrícula: " + e.getMatricula() + " | CPF: " + e.getCpf() + " | Ingresso: " + e.getAnoIngresso());
         }
         System.out.println("--------------------------------------");
+
+        System.out.println("\n--- Perfis de Estudantes no MongoDB (JSON Embutido) ---");
+        List<Document> mongoDocs = UsuarioNoSQLDAO.listarTodosUsuariosNoSQL();
+        for (Document doc : mongoDocs) {
+            if (doc.containsKey("perfil_estudante") && doc.get("perfil_estudante") != null) {
+                System.out.println("CPF Usuário: " + doc.get("cpf") + " -> " + ((Document)doc.get("perfil_estudante")).toJson());
+            }
+        }
+        System.out.println("-------------------------------------------------------");
     }
 
     public static void o_rcurso(Scanner sc) {
@@ -236,6 +240,13 @@ public class Organizador {
             System.out.println("ID: " + c.getIdCurso() + " | Nome: " + c.getNome() + " | Campus: " + c.getCampus());
         }
         System.out.println("----------------------------------");
+
+        System.out.println("\n--- Coleção de Cursos no MongoDB (JSON) ---");
+        List<Document> mongoCursos = CursoNoSQLDAO.listarTodosCursosNoSQL();
+        for (Document doc : mongoCursos) {
+            System.out.println(doc.toJson());
+        }
+        System.out.println("-------------------------------------------");
     }
 
     public static void o_rvinculo(Scanner sc) {
@@ -246,6 +257,18 @@ public class Organizador {
             System.out.println("ID: " + v.getIdVinculo() + " | Estudante: " + v.getMatricula() + " | Status: " + v.getStatus());
         }
         System.out.println("------------------------------------");
+
+        System.out.println("\n--- Vínculos Aninhados por Estudante no MongoDB (JSON) ---");
+        List<Document> mongoDocs = UsuarioNoSQLDAO.listarTodosUsuariosNoSQL();
+        for (Document doc : mongoDocs) {
+            if (doc.containsKey("perfil_estudante") && doc.get("perfil_estudante") != null) {
+                Document perfil = (Document) doc.get("perfil_estudante");
+                if (perfil.containsKey("vinculos") && perfil.get("vinculos") != null) {
+                    System.out.println("Matrícula: " + perfil.get("mat_estudante") + " -> Vínculos: " + perfil.get("vinculos"));
+                }
+            }
+        }
+        System.out.println("-----------------------------------------------------------");
     }
 
     /*

@@ -14,7 +14,7 @@ public class Conexao {
     private static final String SENHA = "professor";
     private static Connection conexao = null;
 
-    private static final String URL_MONGO = "mongodb://professor:professor@13.217.116.158:27017/universidade?authSource=admin";
+    private static final String URL_MONGO = "mongodb://professor:professor@3.85.189.11:27017/universidade?authSource=admin";
     private static final String BANCO_MONGO_NOME = "universidade";
     private static MongoClient mongoClient = null;
     private static MongoDatabase databaseMongo = null;

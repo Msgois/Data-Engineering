@@ -10,8 +10,9 @@ public class CursoDAO {
     public static void inserirCurso(Curso curso) {
         String sql = "INSERT INTO universidade.curso (nome,grau, turno, campus,nivel) VALUES (?,?::universidade.tipo_grau,?::universidade.tipo_turno,?,?::universidade.tipo_nivel)";
 
+        // Adicionado o Statement.RETURN_GENERATED_KEYS aqui na abertura do PreparedStatement
         try (Connection conn = Conexao.getPostgresConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, curso.getNome());
             stmt.setString(2, curso.getGrau());
@@ -20,6 +21,16 @@ public class CursoDAO {
             stmt.setString(5, curso.getNivel());
 
             stmt.executeUpdate();
+            
+            // Trecho novo: Recupera o ID gerado pelo auto-incremento do Postgres
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int idGerado = generatedKeys.getInt(1);
+                    // Atualiza o objeto Curso com o ID real gerado na AWS
+                    curso.setIdCurso(idGerado); 
+                }
+            }
+
             System.out.println("Curso inserido/Cadastrado com Sucesso!");
 
         } catch (SQLException e) {
