@@ -4,8 +4,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/* 
+ * A classe DAO configurada para processar especificamente transações voltadas à tabela responsável por manter Vínculos acadêmicos no PostgreSQL.
+ */
 public class VinculoDAO {
     // 1. CREATE
+    /*
+     * Incorpora a gravação de relacionamentos na base, mapeando e filtrando
+     * propriedades como o status para que o banco receba corretamente sob um
+     * casting nativo (?::universidade.status_estudante).
+     * Implementa também checagem para data nula em campos não-obrigatórios.
+     * 
+     */
     public static void inserirVinculo(Vinculo vinculo) {
         String sql = "INSERT INTO universidade.vinculo (mat_estudante, curso, data_entrada, status, data_saida) VALUES (?, ?, ?, ?::universidade.status_estudante, ?)";
         try (Connection conn = Conexao.getPostgresConnection();
@@ -29,6 +39,10 @@ public class VinculoDAO {
     }
 
     // 2. READ
+    /*
+     * Puxa e mapeia todos os campos retornados pelo ResultSet da tabela genérica
+     * para formatar um ArrayList de vínculos disponíveis.
+     */
     public List<Vinculo> listarTodosVinculo() {
         String sql = "SELECT * FROM universidade.vinculo";
         List<Vinculo> vinculos = new ArrayList<>();
@@ -55,6 +69,12 @@ public class VinculoDAO {
     }
 
     // 3. UPDATE (Mudar status, ex: de Ativo para Trancado)
+    /*
+     * Facilita modificações direcionadas e menores na tabela relacional, limitando
+     * a alteração para acomodar a mudança de status, valendo-se novamente de
+     * tipagem enumerada própria do schema (universidade.status_estudante).
+     * 
+     */
     public void atualizarStatus(int idVinculo, String novoStatus) {
         String sql = "UPDATE universidade.vinculo SET status = ?::universidade.status_estudante WHERE id_vinculo = ?";
 
@@ -72,6 +92,10 @@ public class VinculoDAO {
     }
 
     // 4. DELETE
+    /*
+     * Utiliza a chave sequencial primária da tabela para efetuar a remoção
+     * permanente de um vínculo individual.
+     */
     public void deletar(int idVinculo) {
         String sql = "DELETE FROM universidade.vinculo WHERE id_vinculo = ?";
         try (Connection conn = Conexao.getPostgresConnection();

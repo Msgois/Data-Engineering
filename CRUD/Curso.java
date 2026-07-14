@@ -1,6 +1,15 @@
 package CRUD;
 
+/* 
+ * Classe de modelo (Entity/Model) que representa um Curso no sistema. 
+ * Contém os atributos privados da entidade e a estrutura básica de encapsulamento utilizando getters e setters.
+ */
 public class Curso {
+    /*
+     * Variáveis que representam as colunas/campos da tabela ou documento Curso,
+     * como identificador, nome, grau acadêmico, turno de aulas, campus e
+     * nível.
+     */
     private int idCurso;
     private String nome;
     private String grau;
@@ -9,10 +18,18 @@ public class Curso {
     private String nivel;
 
     // Construtor vazio
+    /*
+     * Construtor padrão sem argumentos para facilitar a instanciação e o mapeamento
+     * de frameworks/DAOs.
+     */
     public Curso() {
     }
 
     // Construtor completo
+    /*
+     * Construtor parametrizado para inicializar todos os atributos de uma só vez no
+     * momento da criação do objeto.
+     */
     public Curso(int idCurso, String nome, String grau, String turno, String campus, String nivel) {
         this.idCurso = idCurso;
         this.nome = nome;
@@ -23,6 +40,10 @@ public class Curso {
     }
 
     // Getters e Setters
+    /*
+     * Conjunto de métodos de acesso (Getters) e modificação (Setters) para os
+     * atributos privados de forma controlada.
+     */
     public int getIdCurso() {
         return idCurso;
     }

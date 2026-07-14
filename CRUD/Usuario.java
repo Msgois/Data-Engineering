@@ -2,7 +2,15 @@ package CRUD;
 
 import java.util.Date;
 
+/* 
+ * Classe que atua como Model/Entidade responsável pela abstração e transporte de dados (DTO/POJO) referentes a um Usuário do sistema.
+ */
 public class Usuario {
+    /*
+     * Atributos definidores que correspondem aos campos das tabelas ou chaves do
+     * MongoDB: Cadastro de Pessoa Física (identificador principal), nome, data de
+     * nascimento, e-mail, telefone e credenciais sistêmicas (login/senha).
+     */
     private long cpf;
     private String nome;
     private Date dataNascimento;
@@ -12,9 +20,17 @@ public class Usuario {
     private String senha;
 
     // Construtores
+    /*
+     * Inicializador padrão sem parâmetros para flexibilizar a instanciação.[cite:
+     * 9]
+     */
     public Usuario() {
     }
 
+    /*
+     * Construtor que possibilita a injeção imediata de todos os estados do usuário
+     * durante a criação do objeto.
+     */
     public Usuario(long cpf, String nome, Date dataNascimento, String email, String telefone, String login,
             String senha) {
         this.cpf = cpf;
@@ -27,6 +43,10 @@ public class Usuario {
     }
 
     // Getters e Setters
+    /*
+     * Estruturas usuais de encapsulamento permitindo a manipulação e resgate dos
+     * atributos resguardados de forma modularizada.
+     */
     public long getCpf() {
         return cpf;
     }

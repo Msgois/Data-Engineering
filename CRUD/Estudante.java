@@ -1,6 +1,14 @@
 package CRUD;
 
+/* 
+ * Classe de modelo (Entity/Model) responsável por representar o conceito de Estudante em escopo lógico da aplicação.
+ */
 public class Estudante {
+    /*
+     * Declaração de atributos que definem um estudante: id interno, número do CPF,
+     * matrícula descritiva, MC (possivelmente média de curso ou similar) e ano de
+     * entrada.
+     */
     private int idEstudante;
     private long cpf;
     private String matricula;
@@ -8,10 +16,15 @@ public class Estudante {
     private int anoIngresso;
 
     // Construtor vazio
+    /* Inicialização padronizada vazia do estudante. */
     public Estudante() {
     }
 
     // Construtor completo
+    /*
+     * Inicialização do estudante onde o estado inicial é inteiramente provido de
+     * forma parametrizada.
+     */
     public Estudante(int idEstudante, long cpf, String matricula, double mc, int anoIngresso) {
         this.idEstudante = idEstudante;
         this.cpf = cpf;
@@ -21,6 +34,10 @@ public class Estudante {
     }
 
     // Getters e Setters
+    /*
+     * Declaração tradicional do encapsulamento dos campos internos permitindo obter
+     * e registrar valores.
+     */
     public int getIdEstudante() {
         return idEstudante;
     }

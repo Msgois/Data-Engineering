@@ -10,14 +10,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/* 
+ * DAO customizado para operações NoSQL complexas sobre a coleção 'usuarios' do MongoDB.
+ * Tem a responsabilidade primária de tratar não só as chaves nativas do Usuário como também embutir (embed) informações de 'estudante' e seus 'vinculos' nos registros.
+ */
 public class UsuarioNoSQLDAO {
     private static MongoCollection<Document> getMongoColecao() {
         return Conexao.getMongoDatabase().getCollection("usuarios");
     }
 
     // Auxiliar para limpar chaves/colchetes caso venham formatados do JDBC/Postgres
+    /*
+     * Função privada para higienização e parse de dados textuais que vêm sujos de
+     * formatações do PostgreSQL (como colchetes e chaves textuais) os transformando
+     * em uma List do Java limpa.
+     */
     private static List<String> formatarLista(String texto) {
-        if (texto == null || texto.isEmpty()) return new ArrayList<>();
+        if (texto == null || texto.isEmpty())
+            return new ArrayList<>();
         String limpo = texto.replaceAll("[\\{\\}\\[\\]]", "");
         return Arrays.asList(limpo.split(","));
     }
@@ -25,10 +35,17 @@ public class UsuarioNoSQLDAO {
     // =========================================================================
     // 1. CREATE COMPLETO (Salva Usuário, Estudante e Vínculos juntos)
     // =========================================================================
+    /*
+     * Método flexível e modular de inserção (CREATE) para MongoDB.
+     * Constrói o Document base, e varre a presença dos objetos opcionais
+     * (Estudante, Vinculos). Caso eles sejam fornecidos, constrói e
+     * incorpora nativamente os subdocumentos necessários, espelhando a topologia
+     * relacional toda em uma única transação.
+     */
     public static void inserirUsuarioNoSQL(Usuario usuario, Estudante estudante, List<Vinculo> vinculos) {
         try {
             MongoCollection<Document> colecao = getMongoColecao();
-            
+
             List<String> emailsList = formatarLista(usuario.getEmail());
             List<String> telefonesList = formatarLista(usuario.getTelefone());
 
@@ -58,7 +75,7 @@ public class UsuarioNoSQLDAO {
                     }
                     docEstudante.append("vinculos", docVinculos);
                 }
-                
+
                 // Embutindo o objeto estudante completo dentro do usuário
                 docUsuario.append("perfil_estudante", docEstudante);
             }
@@ -73,6 +90,10 @@ public class UsuarioNoSQLDAO {
     // =========================================================================
     // 2. READ (Retorna todos os documentos complexos da coleção)
     // =========================================================================
+    /*
+     * Método de leitura iterativa sob a coleção, devolvendo uma lista generalizada
+     * de Documents.
+     */
     public static List<Document> listarTodosUsuariosNoSQL() {
         List<Document> usuarios = new ArrayList<>();
         try (MongoCursor<Document> cursor = getMongoColecao().find().iterator()) {
@@ -88,22 +109,25 @@ public class UsuarioNoSQLDAO {
     // =========================================================================
     // 3. UPDATE (Atualiza os dados cadastrais principais do Usuário)
     // =========================================================================
+    /*
+     * Ação padronizada de atualização dos dados-raiz de um Document (nome, datas,
+     * credenciais) preservando intocados eventuais subdocumentos aninhados, como
+     * estudantes.
+     */
     public static void atualizarNoSQL(Usuario usuario) {
         try {
             List<String> emailsList = formatarLista(usuario.getEmail());
             List<String> telefonesList = formatarLista(usuario.getTelefone());
 
             getMongoColecao().updateOne(
-                Filters.eq("cpf", usuario.getCpf()),
-                Updates.combine(
-                    Updates.set("nome", usuario.getNome()),
-                    Updates.set("data_nascimento", usuario.getDataNascimento()),
-                    Updates.set("email", emailsList),
-                    Updates.set("telefone", telefonesList),
-                    Updates.set("login", usuario.getLogin()),
-                    Updates.set("senha", usuario.getSenha())
-                )
-            );
+                    Filters.eq("cpf", usuario.getCpf()),
+                    Updates.combine(
+                            Updates.set("nome", usuario.getNome()),
+                            Updates.set("data_nascimento", usuario.getDataNascimento()),
+                            Updates.set("email", emailsList),
+                            Updates.set("telefone", telefonesList),
+                            Updates.set("login", usuario.getLogin()),
+                            Updates.set("senha", usuario.getSenha())));
             System.out.println("Dados cadastrais do usuário atualizados no MongoDB!");
         } catch (Exception e) {
             System.err.println("Erro ao atualizar usuário no MongoDB: " + e.getMessage());
@@ -113,13 +137,20 @@ public class UsuarioNoSQLDAO {
     // =========================================================================
     // 3.1 UPDATE SUBDOCUMENTO (Atualiza o status de um vínculo específico)
     // =========================================================================
+    /*
+     * Modificador complexo de arrays em MongoDB.
+     * Emprega os Filtros com cláusula 'and' simultaneamente mapeando o CPF e a
+     * identificação do Curso na array de vínculos. Logo, utiliza o
+     * operador posicional '$' em 'perfil_estudante.vinculos.$.status' para
+     * reescrever apenas a porção que realizou o match do filtro.
+     */
     public static void atualizarStatusVinculoNoSQL(long cpf, int idCurso, String novoStatus) {
         try {
-            // O operador $. localiza e atualiza o elemento exato que deu match no filtro do array
+            // O operador $. localiza e atualiza o elemento exato que deu match no filtro do
+            // array
             getMongoColecao().updateOne(
-                Filters.and(Filters.eq("cpf", cpf), Filters.eq("perfil_estudante.vinculos.id_curso", idCurso)),
-                Updates.set("perfil_estudante.vinculos.$.status", novoStatus)
-            );
+                    Filters.and(Filters.eq("cpf", cpf), Filters.eq("perfil_estudante.vinculos.id_curso", idCurso)),
+                    Updates.set("perfil_estudante.vinculos.$.status", novoStatus));
             System.out.println("Status do vínculo acadêmico modificado com sucesso no MongoDB!");
         } catch (Exception e) {
             System.err.println("Erro ao atualizar status do vínculo no MongoDB: " + e.getMessage());
@@ -129,6 +160,11 @@ public class UsuarioNoSQLDAO {
     // =========================================================================
     // 4. DELETE (Remove o Usuário e, consequentemente, tudo o que estiver dentro)
     // =========================================================================
+    /*
+     * Apagamento irreversível pela chave de filtro. Como a lógica é
+     * focada em documentos embutidos, toda a ramificação acadêmica vai desaparecer
+     * junto com o Usuário de raiz.
+     */
     public static void deletarNoSQL(long cpf) {
         try {
             getMongoColecao().deleteOne(Filters.eq("cpf", cpf));

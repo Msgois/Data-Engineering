@@ -1,0 +1,9 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "CRUD/postgresql-42.7.13.jar",
+        "CRUD/bson-5.8.0.jar",
+        "CRUD/mongodb-driver-sync-5.8.0.jar",
+        "CRUD/mongodb-driver-core-5.8.0.jar"
+    ]
+}

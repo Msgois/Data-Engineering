@@ -2,7 +2,15 @@ package CRUD;
 
 import java.util.Date;
 
+/* 
+ * Model/Entidade responsável pela abstração e controle da ligação entre um estudante e um curso, que simboliza a situação acadêmica.
+ */
 public class Vinculo {
+    /*
+     * Dados encapsulados: id de identificação própria, referências estruturais para
+     * matrículas (aluno) e IDs (curso), atrelados às datas cronológicas de
+     * acompanhamento do status acadêmico.
+     */
     private int idVinculo;
     private String matricula; // FK para estudante (ligado à mat_estudante)
     private int idCurso; // FK para curso
@@ -11,10 +19,18 @@ public class Vinculo {
     private Date dataSaida; // Pode ser nulo se o aluno ainda estiver cursando
 
     // Construtor vazio
+    /*
+     * Inicialização branda da instância permitindo posterior inserção gradativa dos
+     * campos.
+     */
     public Vinculo() {
     }
 
     // Construtor completo
+    /*
+     * Inicialização carregada, injetando de pronto todos os detalhes inerentes da
+     * ligação.
+     */
     public Vinculo(int idVinculo, String matricula, int idCurso, Date dataEntrada, String status, Date dataSaida) {
         this.idVinculo = idVinculo;
         this.matricula = matricula;
@@ -25,6 +41,10 @@ public class Vinculo {
     }
 
     // Getters e Setters
+    /*
+     * Estrutura usual para captação e mutação de valores fechados da classe
+     * Vinculo.
+     */
     public int getIdVinculo() {
         return idVinculo;
     }

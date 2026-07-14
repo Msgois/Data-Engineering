@@ -4,8 +4,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/* 
+ * Classe Data Access Object designada para as transações de base de dados relativas à tabela Estudante no esquema PostgreSQL.
+ */
 public class EstudanteDAO {
     // 1. CREATE (Insert)
+    /*
+     * Executa a instrução SQL INSERT injetando as variáveis do objeto Estudante
+     * para formar o novo registro.
+     */
     public static void inserirEstudante(Estudante estudante) {
         String sql = "INSERT INTO universidade.estudante (mat_estudante,cpf, MC, ano_ingresso) VALUES (?,?,?,?)";
 
@@ -26,6 +33,10 @@ public class EstudanteDAO {
     }
 
     // 2. READ (Listar todos)
+    /*
+     * Executa a instrução SQL SELECT a fim de mapear o ResultSet retornado para uma
+     * lista ArrayList contendo objetos 'Estudante'.
+     */
     public List<Estudante> listarTodosEstudantes() {
 
         String sql = "SELECT * FROM universidade.estudante";
@@ -51,6 +62,10 @@ public class EstudanteDAO {
     }
 
     // 3. UPDATE
+    /*
+     * Altera dados específicos (como matrícula, cpf, mc ou ano_ingresso) do
+     * estudante cujo id_estudante bata com a condição da cláusula WHERE.
+     */
     public void atualizar(Estudante estudante) {
         String sql = "UPDATE universidade.estudante SET mat_estudante = ?, cpf = ?, MC = ?, ano_ingresso = ? WHERE id_estudante = ?";
 
@@ -71,6 +86,10 @@ public class EstudanteDAO {
     }
 
     // 4. DELETE
+    /*
+     * Exclui em definitivo o registro referente a um estudante baseado no seu
+     * identificador primário.
+     */
     public void deletar(int idEstudante) {
         String sql = "DELETE FROM universidade.estudante WHERE id_estudante = ?";
 

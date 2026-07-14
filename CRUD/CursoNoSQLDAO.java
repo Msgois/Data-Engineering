@@ -9,7 +9,15 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
+/* 
+ * Classe DAO para persistência da entidade Curso em uma base orientada a documentos (MongoDB).
+ * Implementa todas as operações CRUD utilizando coleções e documentos BSON.
+ */
 public class CursoNoSQLDAO {
+    /*
+     * Método auxiliar privado que captura e retorna a coleção "cursos" do banco de
+     * dados MongoDB associado.
+     */
     private static MongoCollection<Document> getMongoColecao() {
         return Conexao.getMongoDatabase().getCollection("cursos");
     }
@@ -17,6 +25,12 @@ public class CursoNoSQLDAO {
     // =========================================================================
     // 1. CREATE
     // =========================================================================
+    /*
+     * Método para inserir (CREATE) um novo documento representando o objeto Curso
+     * na coleção do MongoDB.
+     * Ele mapeia explicitamente os atributos do Java para as chaves e valores do
+     * documento BSON.
+     */
     public static void inserirCursoNoSQL(Curso curso) {
         try {
             Document doc = new Document("id_curso", curso.getIdCurso())
@@ -36,6 +50,10 @@ public class CursoNoSQLDAO {
     // =========================================================================
     // 2. READ
     // =========================================================================
+    /*
+     * Método de leitura (READ) que varre a coleção inteira por meio de um iterador
+     * e retorna a lista de documentos (Document) extraídos.
+     */
     public static List<Document> listarTodosCursosNoSQL() {
         List<Document> cursos = new ArrayList<>();
         try (MongoCursor<Document> cursor = getMongoColecao().find().iterator()) {
@@ -51,18 +69,21 @@ public class CursoNoSQLDAO {
     // =========================================================================
     // 3. UPDATE
     // =========================================================================
+    /*
+     * Método de atualização (UPDATE) de um documento.
+     * Emprega os filtros e atualizadores oficiais do driver MongoDB para buscar o
+     * documento por id_curso e sobrescrever seus campos.
+     */
     public static void atualizarCursoNoSQL(Curso curso) {
         try {
             getMongoColecao().updateOne(
-                Filters.eq("id_curso", curso.getIdCurso()),
-                Updates.combine(
-                    Updates.set("nome", curso.getNome()),
-                    Updates.set("grau", curso.getGrau()),
-                    Updates.set("turno", curso.getTurno()),
-                    Updates.set("campus", curso.getCampus()),
-                    Updates.set("nivel", curso.getNivel())
-                )
-            );
+                    Filters.eq("id_curso", curso.getIdCurso()),
+                    Updates.combine(
+                            Updates.set("nome", curso.getNome()),
+                            Updates.set("grau", curso.getGrau()),
+                            Updates.set("turno", curso.getTurno()),
+                            Updates.set("campus", curso.getCampus()),
+                            Updates.set("nivel", curso.getNivel())));
             System.out.println("Dados do curso atualizados com sucesso no MongoDB!");
         } catch (Exception e) {
             System.err.println("Erro ao atualizar curso no MongoDB: " + e.getMessage());
@@ -72,6 +93,10 @@ public class CursoNoSQLDAO {
     // =========================================================================
     // 4. DELETE
     // =========================================================================
+    /*
+     * Método para exclusão (DELETE) que encontra e deleta um documento que atenda
+     * ao filtro do 'id_curso'.
+     */
     public static void deletarCursoNoSQL(int idCurso) {
         try {
             getMongoColecao().deleteOne(Filters.eq("id_curso", idCurso));

@@ -4,13 +4,27 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/* 
+ * Data Access Object elaborado exclusivamente para as transações SQL que operam em cima da tabela de 'usuario' no banco de dados PostgreSQL.
+ */
 public class UsuarioDAO {
     // 1. CREATE (Insert)
+    /*
+     * Executa a gravação (CREATE) de uma instância da entidade Usuario no banco de
+     * dados.
+     * Possui formatações explícitas de chaves para suportar a conversão de Strings
+     * convencionais em arrays do tipo VARCHAR (ex: ?::VARCHAR[]), requisitados
+     * pelos campos email e telefone.
+     */
     public static void inserirUsuario(Usuario usuario) {
         String sql = "INSERT INTO universidade.usuario (cpf, nome, data_nascimento, email, telefone, login, senha) VALUES (?, ?, ?, ?::VARCHAR[], ?::VARCHAR[], ?, ?)";
         /*
          * Como o email e o telefone são Arrays de VARCHAR, foi necessário criar essa
          * Formatação para que sejam lidos corretamente
+         */
+        /*
+         * Empacota a string com chaves ({}) adaptando o dado em tempo de execução para
+         * os arrays nativos requeridos pelo engine do banco de dados.
          */
         String emailFormatado = "{" + usuario.getEmail() + "}";
         String telefoneFormatado = "{" + usuario.getTelefone() + "}";
@@ -35,6 +49,10 @@ public class UsuarioDAO {
     }
 
     // 2. READ (Listar todos)
+    /*
+     * Busca (READ) de modo linear todos os registros presentes na tabela
+     * especificada e agrupa-os num objeto da classe List.
+     */
     public List<Usuario> listarTodosUsuarios() {
         String sql = "SELECT * FROM universidade.usuario";
         List<Usuario> usuarios = new ArrayList<>();
@@ -62,6 +80,12 @@ public class UsuarioDAO {
     }
 
     // 3. UPDATE
+    /*
+     * Processa a repopulação (UPDATE) dos dados base de um usuário previamente
+     * gravado, filtrando a atualização pelo número do CPF.
+     * Também reutiliza a lógica de envelopamento entre chaves ({}) para sustentar
+     * os tipos ARRAY (Varchar) declarados na tabela.
+     */
     public void atualizar(Usuario usuario) {
         String sql = "UPDATE universidade.usuario SET nome = ?, data_nascimento = ?, email = ?, telefone = ?, login = ?, senha = ? WHERE cpf = ?";
         String emailFormatado = "{" + usuario.getEmail() + "}";
@@ -86,6 +110,10 @@ public class UsuarioDAO {
     }
 
     // 4. DELETE
+    /*
+     * Trata da destruição física (DELETE) das informações atreladas a um respectivo
+     * CPF dentro da tabela relacional referenciada.
+     */
     public void deletar(long cpf) {
         String sql = "DELETE FROM universidade.usuario WHERE cpf = ?";
 
